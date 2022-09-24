@@ -1,0 +1,31 @@
+@import '~antd/dist/antd.css';
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&family=Source+Sans+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
+$Base-Family: 'Source Sans Pro', sans-serif;
+$Headers-Family: 'Rubik', sans-serif;
+
+body {
+	font-family: $Base-Family;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: $Headers-Family;
+}
+
+html,
+body {
+	height: 100%;
+
+	#root {
+		height: 100%;
+
+		.main-layout {
+			min-height: 100%;
+		}
+	}
+}
