@@ -1,21 +1,10 @@
 // import { io } from 'socket.io-client';
-
-import { Layout } from 'antd';
-const { Header, Content, Sider } = Layout;
-
 // io('http://localhost:5000');
 
-const App = () => {
-	return (
-		<Layout className='main-layout'>
-			<Header>Header</Header>
+import MessagePage from 'pages/Message';
 
-			<Layout>
-				<Sider>Sider</Sider>
-				<Content>Content</Content>
-			</Layout>
-		</Layout>
-	);
+const App = () => {
+	return <MessagePage />;
 };
 
 export default App;

@@ -1,8 +1,14 @@
-@import '~antd/dist/antd.css';
+@import '~antd/dist/antd.min.css';
+@import '~antd/dist/antd.variable.min.css';
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&family=Source+Sans+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap');
 
 $Base-Family: 'Source Sans Pro', sans-serif;
 $Headers-Family: 'Rubik', sans-serif;
+$Golden-Yellow: #fff6d5;
+$Bg-Color: #00778a;
+$Sider-Width: 30%;
+$Message-Header-Height: 73px;
+$Message-Footer-Height: 73px;
 
 body {
 	font-family: $Base-Family;
@@ -25,7 +31,150 @@ body {
 		height: 100%;
 
 		.main-layout {
-			min-height: 100%;
+			height: 100%;
+
+			.ant-layout-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				border-bottom: thin solid $Golden-Yellow;
+				background-color: $Bg-Color;
+				padding: 0 2.5%;
+			}
+
+			.ant-layout-has-sider {
+				overflow: hidden;
+
+				& > * {
+					overflow-y: auto;
+					overflow-x: hidden;
+
+					&::-webkit-scrollbar {
+						width: 10px;
+					}
+					&::-webkit-scrollbar-track {
+						background: transparent;
+					}
+					&::-webkit-scrollbar-thumb {
+						background: $Golden-Yellow;
+					}
+
+					&.ant-layout-sider {
+						max-width: $Sider-Width !important;
+						min-width: $Sider-Width !important;
+						width: $Sider-Width !important;
+						padding: 16px 2.5%;
+						background-color: $Bg-Color;
+						box-shadow: 1px 0 5px rgba(2, 2, 2, 0.5);
+						z-index: 1;
+
+						.ant-list * {
+							color: #ffffff;
+						}
+
+						.fab-new {
+							position: fixed;
+							bottom: 2%;
+							left: calc($Sider-Width - 5%);
+							border-radius: 50%;
+						}
+					}
+
+					&.ant-layout-content {
+						background-color: rgb(228, 228, 228);
+						position: relative;
+
+						&::-webkit-scrollbar-thumb {
+							background-color: $Bg-Color;
+						}
+
+						.message-header {
+							position: absolute;
+							top: 0;
+							width: 100%;
+							height: $Message-Header-Height;
+							border-bottom: thin solid rgba(99, 99, 99, 0.5);
+							padding: 0 4%;
+							display: flex;
+							align-items: center;
+							justify-content: flex-start;
+							background-color: #ffffff;
+
+							.user-info {
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								gap: 10px;
+							}
+						}
+
+						.message-body {
+							margin-top: $Message-Header-Height;
+							padding: 16px 4%;
+							padding-bottom: $Message-Footer-Height + 16px;
+						}
+
+						.message-footer {
+							position: absolute;
+							bottom: 0;
+							left: 0;
+							width: 100%;
+							background-color: $Bg-Color;
+							height: $Message-Footer-Height;
+							color: #ffffff;
+							padding: 0 4%;
+							display: flex;
+							align-items: center;
+							justify-content: flex-start;
+
+							form {
+								width: 100%;
+
+								.ant-form-item.message-box {
+									flex-grow: 1;
+								}
+
+								.ant-form-item.send {
+									margin: 0;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			@media (max-width: 900px) {
+				.ant-layout-header {
+					padding: 4px 4%;
+				}
+
+				.ant-layout-has-sider {
+					position: relative;
+
+					& > *::-webkit-scrollbar {
+						width: 5px;
+					}
+
+					.ant-layout-sider {
+						position: absolute;
+						height: 100%;
+						max-width: 100% !important;
+						min-width: 100% !important;
+						width: 100% !important;
+						transition: transform 0.2s linear;
+						padding: 10px 4%;
+
+						&.close {
+							transform: translateX(-100%);
+						}
+
+						.fab-new {
+							left: unset;
+							right: 2%;
+						}
+					}
+				}
+			}
 		}
 	}
 }
