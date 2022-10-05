@@ -1,7 +1,8 @@
 require('dotenv').config();
 const http = require("http");
-const app = require('./app');
+const mongoose = require('mongoose');
 const { Server } = require('socket.io');
+const app = require('./app');
 
 const server = http.createServer(app);
 
@@ -29,6 +30,16 @@ io.on("connection", (socket) => {
    });
 });
 
-server.listen(5000, () => {
-   console.info(`Server Running on port: 5000`)
-})
+const start = async () => {
+   try {
+      await mongoose.connect("mongodb://localhost:27017/chat-io");
+      server.listen(5000, () => {
+         console.info(`Server Running on port: 5000`)
+      })
+   } catch (error) {
+      console.error(error);
+      window.process.exit(1);
+   }
+}
+
+start()

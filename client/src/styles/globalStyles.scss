@@ -143,6 +143,20 @@ body {
 				}
 			}
 
+			&.form-layout {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				form {
+					max-width: 420px;
+					width: 100%;
+					border: thin solid rgb(196, 196, 196);
+					border-radius: 8px;
+					padding: 16px;
+				}
+			}
+
 			@media (max-width: 900px) {
 				.ant-layout-header {
 					padding: 4px 4%;
