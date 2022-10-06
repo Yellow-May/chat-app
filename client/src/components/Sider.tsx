@@ -9,6 +9,7 @@ import { Layout, Avatar, Typography, Button, List, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { AppContext } from 'context/store';
+import { LOG_OUT } from 'context/reducer';
 
 type SiderProps = {
 	room: string | null;
@@ -20,6 +21,7 @@ const Sider = ({ room, setRoom }: SiderProps) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const context = useContext(AppContext);
 	const token = context?.state.accessToken;
+	const dispatch = context?.dispatch;
 
 	useEffect(() => {
 		const fetchUsers = async () => {
@@ -32,6 +34,9 @@ const Sider = ({ room, setRoom }: SiderProps) => {
 			} catch (error: any) {
 				console.log(error);
 				message.error(error?.response?.data?.message);
+				if (error?.response.status === 403) {
+					dispatch?.({ type: LOG_OUT });
+				}
 			} finally {
 				setIsLoading(false);
 			}
