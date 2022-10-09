@@ -1,28 +1,17 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Layout, Avatar, Typography, Button, Form, Input } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
-import data from 'data/dummy.json';
+import { RoomType } from 'types';
 
 type MessageSectionProps = {
-	room: string | null;
-	setRoom: Dispatch<SetStateAction<string | null>>;
-};
-
-type UserProps = {
-	id: string;
-	username: string;
+	room: RoomType | null;
+	setRoom: Dispatch<SetStateAction<RoomType | null>>;
 };
 
 const MessageSection = ({ room }: MessageSectionProps) => {
-	const [user, setUser] = useState<UserProps | null>(null);
-
 	useEffect(() => {
-		const findUser = data.find(e => e.id === room);
-		if (findUser) setUser(findUser);
+		console.log(room);
 	}, [room]);
-
-	if (!room) return null;
-
 	return (
 		<Layout.Content>
 			<div className='message-header'>
@@ -32,7 +21,7 @@ const MessageSection = ({ room }: MessageSectionProps) => {
 						src='https://joeschmoe.io/api/v1/random'
 					/>
 					<Typography.Title level={4} style={{ marginBottom: 0 }}>
-						{user?.username}
+						{room?.contact?.email}
 					</Typography.Title>
 				</div>
 			</div>

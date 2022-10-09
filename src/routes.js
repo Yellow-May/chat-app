@@ -1,7 +1,9 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
+const { v4: uuid } = require("uuid");
 const authMiddleware = require('./middlewares/auth');
 const UserModel = require('./models/users');
+const ChatModel = require('./models/chats')
 
 router.post("/auth/register", async (req, res) => {
    try {
@@ -66,19 +68,82 @@ router.post("/auth/login", async (req, res) => {
 })
 
 router.get('/users', authMiddleware, async (req, res) => {
-   const user = req.user;
+   const { _id } = req.user;
 
    try {
-      const raw_users = UserModel.find({ _id: { $ne: user._id } }).select("-password");
-      const users = await Promise.all((await raw_users)
-         .map(user => ({ id: user._id, email: user.email }))
-      )
+      const ignore_ids = await ChatModel.find({ participants: { $in: _id } }).select("participants").transform(async res => {
+         if (res == null) return res;
+
+         return [...res.map((e) => e.participants.find(f => !f.equals(_id))), _id];
+      })
+
+      const users = await UserModel.find({ _id: { $nin: ignore_ids } }).select("email");
 
       res.status(200).json(users);
    } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" })
+   }
+})
 
+router.get('/users/:id', authMiddleware, async (req, res) => {
+   const { id } = req.params;
+
+   try {
+      const user = await UserModel.findById(id).select("email");
+
+      if (!user) return res.status(404).json({ message: "No user with such id" })
+
+      res.status(200).json(user);
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" })
+   }
+})
+
+router.get("/contacts", authMiddleware, async (req, res) => {
+   try {
+      const { _id } = req.user;
+      const contacts = await ChatModel.find({ participants: { $in: _id } }).select("participants").transform(async res => {
+         if (res == null) return res;
+
+         return await Promise.all(res.map(async e => {
+            const contactId = e.participants.find(f => !f.equals(_id));
+            const contact = await UserModel.findById(contactId).select("email")
+            return { chatid: e._id, contact }
+         }))
+      })
+
+      res.status(200).json(contacts)
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" })
+   }
+})
+
+router.post("/chats", authMiddleware, async (req, res) => {
+   try {
+      const { _id } = req.user;
+      const { contactid } = req.body;
+
+      const chat = await ChatModel.create({ room: uuid(), participants: [_id, contactid] });
+
+      res.status(201).json(chat)
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" })
+   }
+})
+
+router.get("/chats/:chatid", authMiddleware, async (req, res) => {
+   try {
+      const { chatid } = req.params;
+      const chats = await ChatModel.findById(chatid).select("room messages");
+
+      res.status(200).json(chats)
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" })
    }
 })
 
