@@ -16,7 +16,7 @@ router.post("/auth/register", async (req, res) => {
       const user = await UserModel.create({ email, password });
       const accessToken = jwt.sign({ id: user._id }, 'Secret', { expiresIn: "3 hours" });
 
-      return res.status(200).json({ message: "Registration successfully", data: { user, accessToken } })
+      return res.status(200).json({ message: "Registration successfully", data: { user: { _id: user._id, email: user.email }, accessToken } })
 
    } catch (error) {
       console.log(error);

@@ -83,16 +83,13 @@ body {
 					&.ant-layout-content {
 						background-color: rgb(228, 228, 228);
 						position: relative;
-
-						&::-webkit-scrollbar-thumb {
-							background-color: $Bg-Color;
-						}
+						display: flex;
+						flex-direction: column;
 
 						.message-header {
-							position: absolute;
-							top: 0;
 							width: 100%;
 							height: $Message-Header-Height;
+							min-height: $Message-Header-Height;
 							border-bottom: thin solid rgba(99, 99, 99, 0.5);
 							padding: 0 4%;
 							display: flex;
@@ -109,18 +106,59 @@ body {
 						}
 
 						.message-body {
-							margin-top: $Message-Header-Height;
-							padding: 16px 4%;
-							padding-bottom: $Message-Footer-Height + 16px;
+							flex-grow: 1;
+							overflow-y: auto;
+
+							> *::-webkit-scrollbar {
+								width: 10px;
+							}
+							> *::-webkit-scrollbar-track {
+								background: transparent;
+							}
+							> *::-webkit-scrollbar-thumb {
+								background-color: $Bg-Color;
+							}
+
+							.ant-list-items {
+								display: flex;
+								flex-direction: column;
+								padding: 16px 2%;
+
+								li {
+									max-width: 75%;
+									display: flex;
+									gap: 5px;
+
+									p {
+										padding: 5px 8px;
+										background-color: red;
+										color: white;
+										border-radius: 5px;
+										font-size: 0.85em;
+									}
+
+									span.time {
+										font-size: 0.75em;
+										align-self: flex-end;
+									}
+
+									&.sent {
+										flex-direction: row-reverse;
+										align-self: flex-end;
+
+										p {
+											background-color: blue;
+										}
+									}
+								}
+							}
 						}
 
 						.message-footer {
-							position: absolute;
-							bottom: 0;
-							left: 0;
 							width: 100%;
 							background-color: $Bg-Color;
 							height: $Message-Footer-Height;
+							min-height: $Message-Footer-Height;
 							color: #ffffff;
 							padding: 0 4%;
 							display: flex;
@@ -185,6 +223,14 @@ body {
 						.fab-new {
 							left: unset;
 							right: 2%;
+						}
+					}
+
+					.ant-layout-content {
+						.message-body {
+							&::-webkit-scrollbar {
+								width: 5px;
+							}
 						}
 					}
 				}

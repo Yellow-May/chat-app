@@ -3,10 +3,10 @@ export type UserType = {
 	email: string;
 };
 
-type MessageType = {
-	author: string;
+export type MessageType = {
+	author: UserType;
 	message: string;
-	createdAt: string;
+	createdAt: number;
 };
 
 export type RoomType = {

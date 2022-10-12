@@ -28,7 +28,6 @@ const NewChatModal = ({
 }: NewChatModalProps) => {
 	const [users, setUsers] = useState<UserType[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [change, setChange] = useState(false);
 	const context = useContext(AppContext);
 	const token = context?.state.accessToken;
 	const dispatch = context?.dispatch;
@@ -68,15 +67,14 @@ const NewChatModal = ({
 					headers: { Authorization: `Bearer ${token}` },
 				}
 			);
-			console.log(res);
+			setIsModalOpen(false);
 			setRoom({
 				roomid: res.data?.room,
 				messages: res.data?.messages,
 				chatid: res.data?._id,
 				contact,
 			});
-			fetchUsers();
-			setChange(true);
+			fetchContacts();
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			console.log(error);
@@ -93,7 +91,6 @@ const NewChatModal = ({
 			open={isModalOpen}
 			onCancel={() => {
 				setIsModalOpen(false);
-				change && fetchContacts();
 			}}
 			footer={false}
 			centered

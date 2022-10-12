@@ -1,5 +1,3 @@
-// import { io } from 'socket.io-client';
-// io('http://localhost:5000');
 import { Route, Routes } from 'react-router-dom';
 
 import MessagePage from 'pages/Message';

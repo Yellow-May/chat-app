@@ -1,7 +1,18 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
-import { Layout, Avatar, Typography, Button, Form, Input } from 'antd';
+import {
+	Dispatch,
+	SetStateAction,
+	useContext,
+	useEffect,
+	useState,
+} from 'react';
+import { Layout, Avatar, Typography, Button, Form, Input, List } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
-import { RoomType } from 'types';
+import ScrollToBottom from 'react-scroll-to-bottom';
+import { MessageType, RoomType } from 'types';
+import { io } from 'socket.io-client';
+import { AppContext } from 'context/store';
+
+const socket = io('http://localhost:5000');
 
 type MessageSectionProps = {
 	room: RoomType | null;
@@ -9,9 +20,50 @@ type MessageSectionProps = {
 };
 
 const MessageSection = ({ room }: MessageSectionProps) => {
+	const [messageList, setList] = useState<MessageType[]>([]);
+	const [form] = Form.useForm<{ message: string }>();
+	const context = useContext(AppContext);
+	const user = context?.state.user;
+
 	useEffect(() => {
 		console.log(room);
-	}, [room]);
+		if (room) {
+			setList(room?.messages);
+			socket.emit('join_room', room?.roomid);
+
+			socket.on('receive_message', (data: MessageType) => {
+				setList(prev => [...prev, data]);
+			});
+		}
+
+		return () => {
+			socket.off('connect');
+			socket.off('disconnect');
+			socket.off('receive_message');
+			setList([]);
+		};
+	}, [room, socket]);
+
+	const sendMessage = (values: { message: string }) => {
+		if (values.message && user) {
+			const newMessage = {
+				author: user,
+				message: values.message,
+				createdAt: Date.now(),
+			};
+			socket.emit('send_message', {
+				roomid: room?.roomid,
+				...newMessage,
+			});
+			setList(prev => [...prev, newMessage]);
+			form.resetFields();
+		}
+	};
+
+	if (!room) {
+		return null;
+	}
+
 	return (
 		<Layout.Content>
 			<div className='message-header'>
@@ -25,11 +77,45 @@ const MessageSection = ({ room }: MessageSectionProps) => {
 					</Typography.Title>
 				</div>
 			</div>
-			<div className='message-body'>Message List</div>
+			<ScrollToBottom className='message-body'>
+				<List
+					className='message-view'
+					itemLayout='horizontal'
+					dataSource={messageList}
+					renderItem={({ author, message, createdAt }, idx) => {
+						const allowImg = author._id !== messageList?.[idx - 1]?.author._id;
+						const date = new Date(createdAt);
+						const time = date.getHours() + ' : ' + date.getMinutes();
+
+						return (
+							<li
+								key={createdAt}
+								className={author._id === user?._id ? 'sent' : 'received'}>
+								{allowImg ? (
+									<Avatar
+										size={25}
+										style={{ border: 'thin solid gray' }}
+										src='https://joeschmoe.io/api/v1/random'
+									/>
+								) : (
+									<span className='empty' style={{ width: 25 }} />
+								)}
+								<p>{message}</p>
+								<span className='time'>{time}</span>
+							</li>
+						);
+					}}
+				/>
+			</ScrollToBottom>
 			<div className='message-footer'>
-				<Form layout='inline' size='large'>
-					<Form.Item className='message-box'>
-						<Input type='text' placeholder='Enter message...' />
+				<Form
+					form={form}
+					layout='inline'
+					size='large'
+					onFinish={sendMessage}
+					autoComplete='off'>
+					<Form.Item name='message' className='message-box'>
+						<Input type='text' placeholder='Enter message...' autoFocus />
 					</Form.Item>
 
 					<Form.Item className='send'>
