@@ -8,8 +8,11 @@ const MessageSchema = new mongoose.Schema({
    message: {
       type: String,
       required: true
+   },
+   createdAt: {
+      type: Number
    }
-}, { timestamps: true })
+})
 
 const ChatSchema = new mongoose.Schema({
    participants: {

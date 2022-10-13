@@ -14,6 +14,15 @@ import { AppContext } from 'context/store';
 
 const socket = io('http://localhost:5000');
 
+const getTime = (date: Date) => {
+	const hours = date.getHours();
+	const minutes = date.getMinutes();
+
+	return `${hours < 10 ? `0${hours}` : hours}:${
+		minutes < 10 ? `0${minutes}` : minutes
+	}`;
+};
+
 type MessageSectionProps = {
 	room: RoomType | null;
 	setRoom: Dispatch<SetStateAction<RoomType | null>>;
@@ -47,12 +56,13 @@ const MessageSection = ({ room }: MessageSectionProps) => {
 	const sendMessage = (values: { message: string }) => {
 		if (values.message && user) {
 			const newMessage = {
-				author: user,
+				author: user._id,
 				message: values.message,
 				createdAt: Date.now(),
 			};
 			socket.emit('send_message', {
 				roomid: room?.roomid,
+				chatid: room?.chatid,
 				...newMessage,
 			});
 			setList(prev => [...prev, newMessage]);
@@ -83,14 +93,13 @@ const MessageSection = ({ room }: MessageSectionProps) => {
 					itemLayout='horizontal'
 					dataSource={messageList}
 					renderItem={({ author, message, createdAt }, idx) => {
-						const allowImg = author._id !== messageList?.[idx - 1]?.author._id;
-						const date = new Date(createdAt);
-						const time = date.getHours() + ' : ' + date.getMinutes();
+						const allowImg = author !== messageList?.[idx - 1]?.author;
+						const time = getTime(new Date(createdAt));
 
 						return (
 							<li
 								key={createdAt}
-								className={author._id === user?._id ? 'sent' : 'received'}>
+								className={author === user?._id ? 'sent' : 'received'}>
 								{allowImg ? (
 									<Avatar
 										size={25}

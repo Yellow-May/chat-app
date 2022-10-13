@@ -31,6 +31,7 @@ const Sider = ({ room, setRoom }: SiderProps) => {
 			const res = await axios.get('http://localhost:5000/contacts', {
 				headers: { Authorization: `Bearer ${token}` },
 			});
+			console.log(res.data);
 			setContacts(res.data);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {

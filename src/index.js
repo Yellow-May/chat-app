@@ -3,6 +3,7 @@ const http = require("http");
 const mongoose = require('mongoose');
 const { Server } = require('socket.io');
 const app = require('./app');
+const saveChat = require('./utils/saveChat');
 
 const server = http.createServer(app);
 
@@ -21,7 +22,8 @@ io.on("connection", (socket) => {
       console.log(`User with ID: ${socket.id} joined room: ${data}`);
    });
 
-   socket.on("send_message", (data) => {
+   socket.on("send_message", async (data) => {
+      await saveChat(data)
       socket.to(data.roomid).emit("receive_message", data);
    });
 

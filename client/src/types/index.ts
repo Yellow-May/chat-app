@@ -4,7 +4,7 @@ export type UserType = {
 };
 
 export type MessageType = {
-	author: UserType;
+	author: string;
 	message: string;
 	createdAt: number;
 };
