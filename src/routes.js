@@ -104,13 +104,14 @@ router.get('/users/:id', authMiddleware, async (req, res) => {
 router.get("/contacts", authMiddleware, async (req, res) => {
    try {
       const { _id } = req.user;
-      const contacts = await ChatModel.find({ participants: { $in: _id } }).select("participants").transform(async res => {
+      const contacts = await ChatModel.find({ participants: { $in: _id } }).select("participants seen").transform(async res => {
          if (res == null) return res;
 
          return await Promise.all(res.map(async e => {
             const contactId = e.participants.find(f => !f.equals(_id));
-            const contact = await UserModel.findById(contactId).select("email")
-            return { chatid: e._id, contact }
+            const contact = await UserModel.findById(contactId).select("email");
+            const unread = e.seen.length > 0 ? !e.seen.includes(_id) : false;
+            return { chatid: e._id, contact, unread }
          }))
       })
 
@@ -141,6 +142,23 @@ router.get("/chats/:chatid", authMiddleware, async (req, res) => {
       const chats = await ChatModel.findById(chatid).select("room messages");
 
       res.status(200).json(chats)
+   } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" })
+   }
+})
+
+router.patch("/chats/:chatid", authMiddleware, async (req, res) => {
+   try {
+      const { _id } = req.user;
+      const { chatid } = req.params;
+      const chats = await ChatModel.findById(chatid)
+      if (!chats.seen.includes(_id)) {
+         chats.seen.push(_id);
+      }
+      await chats.save();
+
+      res.status(200).json({ message: 'updated' })
    } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" })

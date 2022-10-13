@@ -5,12 +5,23 @@ import {
 	useEffect,
 	useState,
 } from 'react';
-import { Layout, Avatar, Typography, Button, Form, Input, List } from 'antd';
+import {
+	Layout,
+	Avatar,
+	Typography,
+	Button,
+	Form,
+	Input,
+	List,
+	message,
+} from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import { MessageType, RoomType } from 'types';
 import { io } from 'socket.io-client';
 import { AppContext } from 'context/store';
+import { LOG_OUT } from 'context/reducer';
+import axios from 'axios';
 
 const socket = io('http://localhost:5000');
 
@@ -33,14 +44,33 @@ const MessageSection = ({ room }: MessageSectionProps) => {
 	const [form] = Form.useForm<{ message: string }>();
 	const context = useContext(AppContext);
 	const user = context?.state.user;
+	const token = context?.state.accessToken;
+	const dispatch = context?.dispatch;
+
+	const markAsSeen = async (chatid: string) => {
+		try {
+			const res = await axios(`http://localhost:5000/chats/${chatid}`, {
+				method: 'PATCH',
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			console.log(res.data);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
+			console.log(error);
+			message.error(error?.response?.data?.message);
+			if (error?.response.status === 403) {
+				dispatch?.({ type: LOG_OUT });
+			}
+		}
+	};
 
 	useEffect(() => {
-		console.log(room);
 		if (room) {
 			setList(room?.messages);
+			markAsSeen(room?.chatid);
 			socket.emit('join_room', room?.roomid);
-
 			socket.on('receive_message', (data: MessageType) => {
+				markAsSeen(room?.chatid);
 				setList(prev => [...prev, data]);
 			});
 		}

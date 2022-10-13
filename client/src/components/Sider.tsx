@@ -10,7 +10,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { AppContext } from 'context/store';
 import { LOG_OUT } from 'context/reducer';
-import { ContactType, RoomType, UserType } from 'types';
+import { ContactType, RoomType } from 'types';
 import NewChatModal from './NewChatModal';
 
 type SiderProps = {
@@ -31,7 +31,6 @@ const Sider = ({ room, setRoom }: SiderProps) => {
 			const res = await axios.get('http://localhost:5000/contacts', {
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			console.log(res.data);
 			setContacts(res.data);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
@@ -53,7 +52,7 @@ const Sider = ({ room, setRoom }: SiderProps) => {
 		};
 	}, []);
 
-	const joinRoom = async (chatid: string, contact: UserType) => {
+	const joinRoom = async ({ chatid, contact, unread }: ContactType) => {
 		try {
 			const res = await axios.get(`http://localhost:5000/chats/${chatid}`, {
 				headers: { Authorization: `Bearer ${token}` },
@@ -64,6 +63,15 @@ const Sider = ({ room, setRoom }: SiderProps) => {
 				chatid,
 				contact,
 			});
+			if (unread)
+				setContacts(prev =>
+					prev.map(e => {
+						if (chatid === e.chatid) {
+							return { ...e, unread: false };
+						}
+						return e;
+					})
+				);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			console.log(error);
@@ -83,13 +91,14 @@ const Sider = ({ room, setRoom }: SiderProps) => {
 					loading={isLoading}
 					renderItem={item => (
 						<List.Item
-							style={{ cursor: 'pointer' }}
-							onClick={() => joinRoom(item.chatid, item.contact)}>
+							style={{ cursor: 'pointer', position: 'relative' }}
+							onClick={() => joinRoom(item)}>
 							<List.Item.Meta
 								avatar={<Avatar src='https://joeschmoe.io/api/v1/random' />}
 								title={<Typography.Text>{item.contact.email}</Typography.Text>}
 								description='Last message...'
 							/>
+							{item.unread && <span className='unread' />}
 						</List.Item>
 					)}
 				/>

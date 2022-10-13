@@ -19,4 +19,5 @@ export type RoomType = {
 export type ContactType = {
 	chatid: string;
 	contact: UserType;
+	unread: boolean;
 };

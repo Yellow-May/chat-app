@@ -10,7 +10,8 @@ const MessageSchema = new mongoose.Schema({
       required: true
    },
    createdAt: {
-      type: Number
+      type: Number,
+      required: true
    }
 })
 
@@ -29,6 +30,13 @@ const ChatSchema = new mongoose.Schema({
    },
    messages: {
       type: [MessageSchema],
+      default: []
+   },
+   seen: {
+      type: [{
+         type: mongoose.SchemaTypes.ObjectId,
+         ref: "User"
+      }],
       default: []
    }
 });
